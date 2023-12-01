@@ -12,9 +12,41 @@ func main() {
 	lines := util.ReadLines(os.Args[1])
 	var sum int
 	for _, line := range lines {
-		sum += ExtractNumber(line)
+		sum += ExtractNumber(SpellingToNumber(PrepareLine(line)))
 	}
 	fmt.Println(sum)
+}
+
+type dict struct {
+	key string
+	value string
+}
+
+func PrepareLine(line string) string {
+	patterns := []dict{
+		{"twone", "twoone"},
+		{"oneight", "oneeight"},
+		{"threeight", "threeeight"},
+		{"fiveight", "fiveeight"},
+		{"nineight", "nineeight"},
+		{"eightwo", "eighttwo"},
+		{"eighthree", "eightthree"},
+	}
+	for _, pattern := range patterns {
+		replaceRegex := regexp.MustCompile(pattern.key)
+		line = replaceRegex.ReplaceAllString(line, pattern.value)
+	}
+	return line
+}
+
+
+func SpellingToNumber(line string) string {
+	patterns := []string{"one","two","three","four","five","six","seven","eight","nine"}
+	for index, pattern := range patterns {
+		numberPattern := regexp.MustCompile(pattern)
+		line = numberPattern.ReplaceAllString(line, strconv.Itoa(index + 1))
+	}
+	return line
 }
 
 func ExtractNumber(line string) int {
