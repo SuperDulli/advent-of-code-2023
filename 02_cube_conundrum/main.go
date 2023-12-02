@@ -22,12 +22,14 @@ type game struct {
 
 func main() {
 	lines := util.ReadLines(os.Args[1])
-	var sum int
+	var sum, sum2 int
 	for _, line := range lines {
 		data := getData(line)
 		sum += gameIsPossible(data)
+		sum2 += powerSet(minSet(data.sets))
 	}
 	fmt.Println(sum)
+	fmt.Println(sum2)
 }
 
 func getData(line string) game {
@@ -71,4 +73,26 @@ func gameIsPossible(game game) int {
 		}
 	}
 	return game.id
+}
+
+// part 2
+
+func minSet(sets []cubeSet) cubeSet {
+	var min cubeSet
+	for _, set := range sets {
+		if set.red > min.red {
+			min.red = set.red
+		}
+		if set.green > min.green {
+			min.green = set.green
+		}
+		if set.blue > min.blue {
+			min.blue = set.blue
+		}
+	}
+	return min
+}
+
+func powerSet(set cubeSet) int {
+	return set.red * set.green * set.blue
 }
