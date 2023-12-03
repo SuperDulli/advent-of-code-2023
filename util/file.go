@@ -2,11 +2,13 @@ package util
 
 import (
 	"bufio"
+	"fmt"
 	"log"
 	"os"
-	"path"
 )
 
+// ReadLines reads a whole file into memory
+// and returns a slice of its lines.
 func ReadLines(path string) []string {
 	file, err := os.Open(path)
 	if err != nil {
@@ -22,18 +24,30 @@ func ReadLines(path string) []string {
 	return lines
 }
 
-func GetLinesFromKnownFile(name string) []string {
-	cwd, err := os.Getwd()
+// WriteLines writes the lines to the given file.
+func WriteLines(lines []string, path string) error {
+	file, err := os.Create(path)
 	if err != nil {
-		log.Panic(err)
+		return err
 	}
-	return ReadLines(path.Join(cwd,name))
+	defer file.Close()
+
+	w := bufio.NewWriter(file)
+	for _, line := range lines {
+		fmt.Fprintln(w, line)
+	}
+	return w.Flush()
 }
 
-func GetExample() []string {
-	return GetLinesFromKnownFile("example.txt")
-}
-
-func GetInput() []string {
-	return GetLinesFromKnownFile("input.txt")
+func GetCharMatrix(path string) [][]string {
+	var matrix [][]string
+	lines := ReadLines(path)
+	for _, line := range lines {
+		var row []string
+		for _, char := range line {
+			row = append(row, string(char))
+		}
+		matrix = append(matrix, row)
+	}
+	return matrix
 }
