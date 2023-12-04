@@ -53,7 +53,7 @@ func GetCharMatrix(path string) [][]string {
 	return matrix
 }
 
-func ConvertToNumber(arr []string) []int {
+func ConvertToNumbers(arr []string) []int {
 	var numbers []int
 	for _, elem := range arr {
 		if elem == " " || elem == "" {
@@ -66,4 +66,12 @@ func ConvertToNumber(arr []string) []int {
 		numbers = append(numbers, n)
 	}
 	return numbers
+}
+
+func ConvertToNumber(s string) int {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return n
 }
