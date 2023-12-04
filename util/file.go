@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strconv"
 )
 
 // ReadLines reads a whole file into memory
@@ -50,4 +51,19 @@ func GetCharMatrix(path string) [][]string {
 		matrix = append(matrix, row)
 	}
 	return matrix
+}
+
+func ConvertToNumber(arr []string) []int {
+	var numbers []int
+	for _, elem := range arr {
+		if elem == " " || elem == "" {
+			continue
+		}
+		n, err := strconv.Atoi(elem)
+		if err != nil {
+			log.Fatal(err)
+		}
+		numbers = append(numbers, n)
+	}
+	return numbers
 }
