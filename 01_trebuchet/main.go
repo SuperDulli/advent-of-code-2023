@@ -10,11 +10,13 @@ import (
 
 func main() {
 	lines := util.ReadLines(os.Args[1])
-	var sum int
+	var sum, sum2 int
 	for _, line := range lines {
-		sum += ExtractNumber(SpellingToNumber(PrepareLine(line)))
+		sum += ExtractNumber(line)
+		sum2 += ExtractNumber(SpellingToNumber(PrepareLine(line)))
 	}
 	fmt.Println(sum)
+	fmt.Println(sum2)
 }
 
 type dict struct {
