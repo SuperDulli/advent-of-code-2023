@@ -3,8 +3,10 @@ package main
 import (
 	"aoc2023/util"
 	"fmt"
+	"log"
 	"math"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -21,6 +23,19 @@ func main() {
 	}
 
 	fmt.Println(product)
+
+	// part 2
+
+	time, err := strconv.Atoi(strings.Join(strings.Fields(strings.Split(lines[0], ":")[1]), ""))
+	if err != nil {
+		log.Fatal(err)
+	}
+	distance, err := strconv.Atoi(strings.Join(strings.Fields(strings.Split(lines[1], ":")[1]), ""))
+	if err != nil {
+		log.Fatal(err)
+	}
+	buttonHoldTimes := solveQuadratic(time, distance+1)
+	fmt.Println(int(math.Floor(buttonHoldTimes[0]) - math.Ceil(buttonHoldTimes[1]) + 1))
 }
 
 func solveQuadratic(p, q int) []float64 {
