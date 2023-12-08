@@ -6,7 +6,6 @@ import (
 	"log"
 	"os"
 	"strconv"
-	"strconv"
 )
 
 // ReadLines reads a whole file into memory

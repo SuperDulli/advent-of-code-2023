@@ -38,8 +38,7 @@ type card struct {
 
 func getCards(lines []string) []card {
 	var cards []card
-	for n, line := range lines {
-		println(n)
+	for _, line := range lines {
 		splitLine := strings.Split(line, ":")
 		game := strings.Split(splitLine[0], " ")
 		id := util.ConvertToNumber(game[len(game)-1])

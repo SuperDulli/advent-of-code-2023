@@ -3,6 +3,7 @@ package main
 import (
 	"aoc2023/util"
 	"fmt"
+	"os"
 )
 
 type node struct {
