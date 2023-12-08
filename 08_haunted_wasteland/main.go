@@ -3,17 +3,15 @@ package main
 import (
 	"aoc2023/util"
 	"fmt"
-	"os"
 )
 
 type node struct {
-	left  string
-	right string
+	left    string
+	right   string
+	visited bool
 }
 
 func main() {
-	// lines := util.ReadLines("example3.txt")
-
 	lines := util.ReadLines(os.Args[1])
 	directions := lines[0]
 	nodes := make(map[string]node)
@@ -22,6 +20,7 @@ func main() {
 		nodes[line[0:3]] = node{
 			line[7:10],
 			line[12:15],
+			false,
 		}
 	}
 
@@ -48,29 +47,49 @@ func main() {
 		}
 	}
 
-	steps = 0
-	for !allFinished(positions) {
-		fmt.Println(positions)
-		for i, pos := range positions {
-			move := directions[steps%len(directions)]
-			if move == 'L' {
-				pos = nodes[pos].left
-			} else {
+	var loops []int
+	for _, pos := range positions {
+		loops = append(loops, getLoopLen(pos, nodes, directions))
+	}
 
-				pos = nodes[pos].right
-			}
-			positions[i] = pos
+	fmt.Println(LCM(loops[0], loops[1], loops[2:]...)) // the end of each loop is a node with Z at the end
+}
+
+func getLoopLen(pos string, nodes map[string]node, directions string) int {
+	steps := 0
+	for pos[2] != 'Z' {
+		node := nodes[pos]
+		node.visited = true
+		nodes[pos] = node
+		move := directions[steps%len(directions)]
+		if move == 'L' {
+			pos = nodes[pos].left
+		} else {
+
+			pos = nodes[pos].right
 		}
 		steps++
 	}
-	fmt.Println(steps)
+	return steps
 }
 
-func allFinished(positions []string) bool {
-	for _, pos := range positions {
-		if pos[2] != 'Z' {
-			return false
-		}
+// greatest common divisor (GCD) via Euclidean algorithm
+func GCD(a, b int) int {
+	for b != 0 {
+		t := b
+		b = a % b
+		a = t
 	}
-	return true
+	return a
+}
+
+// find Least Common Multiple (LCM) via GCD
+func LCM(a, b int, integers ...int) int {
+	result := a * b / GCD(a, b)
+
+	for i := 0; i < len(integers); i++ {
+		result = LCM(result, integers[i])
+	}
+
+	return result
 }
