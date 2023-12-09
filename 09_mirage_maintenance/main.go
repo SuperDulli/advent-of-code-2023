@@ -10,7 +10,7 @@ import (
 func main() {
 	lines := util.ReadLines(os.Args[1])
 
-	sum := 0
+	sum, sum2 := 0, 0
 	for _, line := range lines {
 		var differences [][]int
 		history := util.ConvertToNumbers(strings.Fields(line))
@@ -21,18 +21,19 @@ func main() {
 			diff = calcDifference(diff)
 			differences = append(differences, diff)
 		}
-		fmt.Println(differences)
 
-		increment := 0
+		increment, decrement := 0, 0
 		for i := len(differences) - 2; i >= 0; i-- {
 			increment += differences[i][len(differences[i])-1]
+			decrement = differences[i][0] - decrement
 		}
-		fmt.Println(increment)
 
 		sum += increment
+		sum2 += decrement
 	}
 
 	fmt.Println(sum)
+	fmt.Println(sum2)
 }
 
 func calcDifference(history []int) []int {
