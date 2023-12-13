@@ -41,3 +41,21 @@ func All[T comparable](arr []T, value T) bool {
 	}
 	return true
 }
+
+func ConvertToMatrix(lines []string) [][]string {
+	var matrix [][]string
+	for _, line := range lines {
+		var row []string
+		for _, char := range line {
+			row = append(row, string(char))
+		}
+		matrix = append(matrix, row)
+	}
+	return matrix
+}
+
+// order is not important
+func Remove(s []int, i int) []int {
+	s[i] = s[len(s)-1]
+	return s[:len(s)-1]
+}
