@@ -55,7 +55,12 @@ func ConvertToMatrix(lines []string) [][]string {
 }
 
 // order is not important
-func Remove(s []int, i int) []int {
+func Remove[T any](s []T, i int) []T {
 	s[i] = s[len(s)-1]
 	return s[:len(s)-1]
+}
+
+// order is important
+func RemoveStable[T any](slice []T, s int) []T {
+	return append(slice[:s], slice[s+1:]...)
 }
