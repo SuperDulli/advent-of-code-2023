@@ -75,3 +75,15 @@ func ConvertToNumber(s string) int {
 	}
 	return n
 }
+
+func GetNumberMatrix(path string) [][]int  {
+	lines := ReadLines(path)
+	matrix := make([][]int, len(lines))
+	for i, line := range lines {
+		matrix[i] = make([]int, len(line))
+		for j, tile := range line {
+			matrix[i][j] = ConvertToNumber(string(tile))
+		}
+	}
+	return matrix
+}
