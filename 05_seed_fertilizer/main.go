@@ -7,6 +7,8 @@ import (
 	"os"
 	"slices"
 	"strings"
+
+	"github.com/go-camp/interval"
 )
 
 func main() {
@@ -45,11 +47,97 @@ func main() {
 		}
 		destinations = append(destinations, seed)
 	}
+	fmt.Println(seeds)
+	fmt.Println(stages)
 	fmt.Println(slices.Min(destinations))
+
+	part2(seeds, stages)
+}
+
+func part2(rawSeeds []int, rawStages [][]transform) {
+	seeds := interval.OrderedSet{}
+	stages := [][]transformRange{}
+
+	for i := 0; i < len(rawSeeds)-1; i += 2 {
+		seeds.Add(interval.Interval{
+			Begin:    rawSeeds[i],
+			IncBegin: true,
+			End:      rawSeeds[i] + rawSeeds[i+1],
+			IncEnd:   false,
+		})
+	}
+
+	for _, rawStage := range rawStages {
+		stage := []transformRange{}
+		for _, instruction := range rawStage {
+			stage = append(stage, transformRange{
+				distance: instruction.dest_start - instruction.source_start,
+				source: interval.Interval{
+					Begin:    instruction.source_start,
+					IncBegin: true,
+					End:      instruction.source_start + instruction.range_len,
+					IncEnd:   false,
+				},
+			})
+		}
+		stages = append(stages, stage)
+	}
+
+	fmt.Println(seeds.String())
+	fmt.Println(stages)
+
+	// transform the seed ranges
+	for n, stage := range stages {
+		fmt.Println(n, stage)
+		transformedSeeds := interval.OrderedSet{}
+		for _, seed := range seeds.Intervals() {
+			for _, instruction := range stage {
+				fmt.Println(seed)
+				fmt.Println("instruction", instruction)
+				if instruction.source.Contains(seed) {
+					// move seed
+					transformedSeeds.Add(seed.Move(instruction.distance))
+					fmt.Println("contained!")
+					seeds.Remove(seed)
+					break
+				}
+				intersection := seed.Intersect(instruction.source)
+				before, after := seed.Bisect(intersection)
+				if intersection.IsEmpty() {
+					continue
+				}
+				fmt.Println(intersection)
+				fmt.Println(before, after)
+				// move only intersection
+				transformedSeeds.Add(intersection.Move(instruction.distance))
+				if !before.IsEmpty() {
+					transformedSeeds.Add(before)
+				}
+				if !after.IsEmpty() {
+					transformedSeeds.Add(after)
+				}
+				fmt.Println(transformedSeeds)
+				seeds.Remove(seed)
+				break
+			}
+		}
+		// add not transformed
+		for _, seed := range seeds.Intervals() {
+			transformedSeeds.Add(seed)
+		}
+		seeds = transformedSeeds
+		fmt.Println(seeds)
+	}
+	fmt.Println(seeds.Bound().Begin)
 }
 
 type transform struct {
 	dest_start   int
 	source_start int
 	range_len    int
+}
+
+type transformRange struct {
+	distance int
+	source   interval.Interval
 }
