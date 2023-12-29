@@ -15,13 +15,27 @@ type vector struct {
 func main() {
 	lines := util.ReadLines(os.Args[1])
 
+	digplanPart1 := [][]string{}
+	for _, line := range lines {
+		digplanPart1 = append(digplanPart1, strings.Fields(line))
+	}
+
+	boundary, corners := findBoundaryAndCorners(digplanPart1)
+	area := shoelace(corners)
+	// Pick's theorem for points
+	inside := area - boundary/2 + 1
+
+	fmt.Println(inside + boundary)
+}
+
+func findBoundaryAndCorners(digplan [][]string) (int, []vector) {
 	pos := vector{0, 0}
 	corners := []vector{}
 	boundary := 0
-	for _, line := range lines {
-		splitLine := strings.Fields(line)
+
+	for _, instruction := range digplan {
 		direction := vector{}
-		switch splitLine[0] {
+		switch instruction[0] {
 		case "R":
 			direction = vector{1, 0}
 		case "L":
@@ -33,7 +47,7 @@ func main() {
 		}
 
 		// move
-		steps := util.ConvertToNumber(splitLine[1])
+		steps := util.ConvertToNumber(instruction[1])
 		pos.x += steps * direction.x
 		pos.y += steps * direction.y
 		boundary += steps
@@ -42,8 +56,11 @@ func main() {
 	if boundary%2 != 0 {
 		panic("boundary is not divisible by 2")
 	}
+	return boundary, corners
+}
 
-	// shoelace formula
+// https://en.wikipedia.org/wiki/Shoelace_formula
+func shoelace(corners []vector) int {
 	area := 0
 	for i := 0; i < len(corners); i++ {
 		x1index := i - 1
@@ -59,10 +76,5 @@ func main() {
 	if area%2 != 0 {
 		panic("area is not an integer")
 	}
-	area = area / 2
-
-	// Pick's theorem for points
-	inside := area - boundary/2 + 1
-
-	fmt.Println(inside + boundary)
+	return area / 2
 }
