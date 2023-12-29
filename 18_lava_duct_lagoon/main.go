@@ -3,7 +3,9 @@ package main
 import (
 	"aoc2023/util"
 	"fmt"
+	"log"
 	"os"
+	"strconv"
 	"strings"
 )
 
@@ -16,8 +18,11 @@ func main() {
 	lines := util.ReadLines(os.Args[1])
 
 	digplanPart1 := [][]string{}
+	digplanPart2 := [][]string{}
 	for _, line := range lines {
-		digplanPart1 = append(digplanPart1, strings.Fields(line))
+		fields := strings.Fields(line)
+		digplanPart1 = append(digplanPart1, fields[:2])
+		digplanPart2 = append(digplanPart2, decodeHex(fields[2]))
 	}
 
 	boundary, corners := findBoundaryAndCorners(digplanPart1)
@@ -25,6 +30,12 @@ func main() {
 	// Pick's theorem for points
 	inside := area - boundary/2 + 1
 
+	fmt.Println(inside + boundary)
+
+	// part 2
+	boundary, corners = findBoundaryAndCorners(digplanPart2)
+	area = shoelace(corners)
+	inside = area - boundary/2 + 1
 	fmt.Println(inside + boundary)
 }
 
@@ -77,4 +88,27 @@ func shoelace(corners []vector) int {
 		panic("area is not an integer")
 	}
 	return area / 2
+}
+
+func decodeHex(hex string) []string {
+	hex = hex[1 : len(hex)-1]
+	instruction := []string{}
+	switch hex[len(hex)-1] {
+	case '0':
+		instruction = append(instruction, "R")
+	case '1':
+		instruction = append(instruction, "D")
+	case '2':
+		instruction = append(instruction, "L")
+	case '3':
+		instruction = append(instruction, "U")
+	default:
+		log.Fatal(hex[len(hex)-1], "encountered unknown hex digit to decode")
+	}
+	distance, err := strconv.ParseInt(hex[1:6], 16, 64)
+	if err != nil {
+		panic(err)
+	}
+	instruction = append(instruction, fmt.Sprint(distance))
+	return instruction
 }
