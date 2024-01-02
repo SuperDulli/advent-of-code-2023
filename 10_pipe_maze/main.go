@@ -3,6 +3,8 @@ package main
 import (
 	"aoc2023/util"
 	"fmt"
+	"math"
+	"os"
 )
 
 type vector struct {
@@ -11,8 +13,7 @@ type vector struct {
 }
 
 func main() {
-	maze := util.GetCharMatrix("input.txt")
-	// maze := util.GetCharMatrix(os.Args[1])
+	maze := util.GetCharMatrix(os.Args[1])
 
 	// find start
 	var start vector
@@ -24,21 +25,23 @@ func main() {
 			}
 		}
 	}
-	fmt.Println(start)
+
+	// useful for part 2
+	var corners []vector
 
 	startDirection := startDirection(start, maze)
-	fmt.Println(startDirection)
 
 	pos := start
 	dir := startDirection
 	steps := 0
 	for ok := true; ok; ok = pos != start {
-		fmt.Println(steps, pos, maze[pos.y][pos.x], dir)
+		if maze[pos.y][pos.x] != "." && maze[pos.y][pos.x] != "|" && maze[pos.y][pos.x] != "-" {
+			corners = append(corners, vector{pos.x, pos.y})
+		}
 		pos = vector{pos.x + dir.x, pos.y + dir.y}
 		steps++
 		dir = moveDirection(pos, dir, maze)
 	}
-	fmt.Println(steps)
 	distance := steps / 2
 	if distance%2 == 0 {
 		fmt.Println(distance)
@@ -46,6 +49,11 @@ func main() {
 		fmt.Println(distance + 1)
 	}
 
+	// part 2
+	area := shoelace(corners)
+	// Pick's theorem for points
+	inside := area - steps/2 + 1
+	println(inside)
 }
 
 func entryDirection(direction vector) vector {
@@ -104,4 +112,24 @@ func moveDirection(pos, dir vector, maze [][]string) vector {
 		return connections[0]
 	}
 	return vector{}
+}
+
+// https://en.wikipedia.org/wiki/Shoelace_formula
+func shoelace(corners []vector) int {
+	area := 0
+	for i := 0; i < len(corners); i++ {
+		x1index := i - 1
+		if x1index < 0 {
+			x1index = len(corners) - 1
+		}
+		x2index := i + 1
+		if x2index >= len(corners) {
+			x2index = 0
+		}
+		area += corners[i].y * (corners[x1index].x - corners[x2index].x)
+	}
+	if area%2 != 0 {
+		panic("area is not an integer")
+	}
+	return int(math.Abs(float64(area))) / 2
 }
