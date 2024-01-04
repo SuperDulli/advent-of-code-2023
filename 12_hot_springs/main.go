@@ -17,45 +17,60 @@ func main() {
 		hints := strings.FieldsFunc(lineData[1], func(r rune) bool {
 			return r == ','
 		})
-		sum += analyze(riddle, util.ConvertToNumbers(hints), false)
+		sum += countPossible(riddle, util.ConvertToNumbers(hints))
 	}
 	fmt.Println(sum)
 }
 
-func analyze(s string, hints []int, groupEnded bool) int {
-	if len(s) == 0 {
-		if len(hints) > 0 {
-
-			return 0
+func countPossible(pattern string, hints []int) int {
+	states := "."
+	for _, hint := range hints {
+		for i := 0; i < hint; i++ {
+			states += "#"
 		}
-		return 1
+		states += "."
 	}
-	switch s[0] {
-	case '.':
-		return analyze(s[1:], hints, false)
-	case '?':
-		positive := 0
-		if !groupEnded {
-			positive = analyze("#"+s[1:], hints, groupEnded)
 
-		}
-		negative := analyze("."+s[1:], hints, groupEnded)
-		return positive + negative
-	case '#':
-		// check first group
-		if len(hints) == 0 {
-			return 0
-		}
-		for i := 0; i < hints[0]; i++ {
-			if i >= len(s) || s[i] == '.' {
-				return 0
+	stateMap := make(map[int]int)
+	stateMap[0] = 1
+
+	// NFA
+	newStateMap := make(map[int]int)
+	for _, char := range pattern {
+		for state, _ := range stateMap {
+			switch char {
+			case '.':
+				// move to neighbor dot
+				if state+1 < len(states) && states[state+1] == '.' {
+					newStateMap[state+1] = newStateMap[state+1] + stateMap[state]
+				}
+				// stay on the dot
+				if states[state] == '.' {
+					newStateMap[state] = newStateMap[state] + stateMap[state]
+				}
+			case '#':
+				// move to neighbor hash
+				if state+1 < len(states) && states[state+1] == '#' {
+					newStateMap[state+1] = newStateMap[state+1] + stateMap[state]
+				}
+			case '?':
+				if state+1 < len(states) {
+					newStateMap[state+1] = newStateMap[state+1] + stateMap[state]
+				}
+				if states[state] == '.' {
+					newStateMap[state] = newStateMap[state] + stateMap[state]
+				}
 			}
 		}
-		if hints[0] < len(s) && s[hints[0]] == '#' {
-			return 0 // group is longer than hint
+		for k := range stateMap {
+			delete(stateMap, k)
 		}
-		return analyze(s[hints[0]:], hints[1:], true)
-	default:
-		panic("default case")
+		for k, v := range newStateMap {
+			stateMap[k] = v
+			delete(newStateMap, k)
+		}
 	}
+
+	// result is the combined count in the last two states
+	return stateMap[len(states)-1] + stateMap[len(states)-2]
 }
