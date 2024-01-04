@@ -11,6 +11,7 @@ func main() {
 	lines := util.ReadLines(os.Args[1])
 
 	sum := 0
+	sum2 := 0
 	for _, line := range lines {
 		lineData := strings.Fields(line)
 		riddle := lineData[0]
@@ -18,8 +19,18 @@ func main() {
 			return r == ','
 		})
 		sum += countPossible(riddle, util.ConvertToNumbers(hints))
+
+		// part 2
+		riddleUnfolded := riddle
+		hintsUnfolded := hints
+		for i := 0; i < 4; i++ {
+			riddleUnfolded += "?" + riddle
+			hintsUnfolded = append(hintsUnfolded, hints...)
+		}
+		sum2 += countPossible(riddleUnfolded, util.ConvertToNumbers(hintsUnfolded))
 	}
 	fmt.Println(sum)
+	fmt.Println(sum2)
 }
 
 func countPossible(pattern string, hints []int) int {
